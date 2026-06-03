@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <title>Entrevista Exploratoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SPLASH / BIENVENIDA -->
+  <div id="splash" class="screen active">
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <span class="logo-main">Entrevista</span>
+        <span class="logo-sub">exploratoria · customer discovery</span>
+      </div>
+      <p class="splash-desc">Formulario de entrevista de problema.<br/>No menciones el producto hasta el final.</p>
+      <button class="btn-primary full" onclick="App.goTo('meta')">Iniciar entrevista →</button>
+      <button class="btn-ghost full" onclick="App.showHistory()">Ver entrevistas guardadas</button>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="screen-history" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('splash')">← Volver</button>
+      <span class="top-title">Entrevistas guardadas</span>
+    </div>
+    <div class="content">
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- PASO META -->
+  <div id="screen-meta" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('splash')">← Salir</button>
+      <span class="top-title">Datos de la entrevista</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 12%"></div></div>
+      <div class="step-label">1 de 9 · Contexto</div>
+
+      <div class="field-group">
+        <label class="field-label">Número de entrevista</label>
+        <input type="text" id="meta-num" class="field-input" placeholder="ej. E-04" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Fecha</label>
+        <input type="date" id="meta-fecha" class="field-input" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Rubro del negocio</label>
+        <input type="text" id="meta-rubro" class="field-input" placeholder="ej. minimarket, peluquería, café..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Antigüedad del negocio</label>
+        <input type="text" id="meta-antiguedad" class="field-input" placeholder="ej. 3 años" />
+      </div>
+      <div class="field-row">
+        <div class="field-group half">
+          <label class="field-label">Formato</label>
+          <select id="meta-formato" class="field-input">
+            <option value="">—</option>
+            <option>Presencial</option>
+            <option>Teléfono</option>
+            <option>Videollamada</option>
+          </select>
+        </div>
+        <div class="field-group half">
+          <label class="field-label">¿Grabación?</label>
+          <select id="meta-grabacion" class="field-input">
+            <option value="">—</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('apertura')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO APERTURA -->
+  <div id="screen-apertura" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('meta')">← Atrás</button>
+      <span class="top-title">Apertura</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 24%"></div></div>
+      <div class="step-label">2 de 9 · Dejar que hable</div>
+
+      <div class="pregunta-card apertura">
+        <div class="pregunta-pill">Pregunta de apertura</div>
+        <p class="pregunta-texto">"Cuéntame cómo fue tu semana en el negocio. ¿Qué te preocupó más?"</p>
+        <p class="pregunta-hint">Habla el 20%, escucha el 80%. No guíes el tema.</p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas — ¿qué temas aparecieron solos?</label>
+        <textarea id="ap-notas" class="field-textarea tall" placeholder="Anotar literalmente. ¿Mencionó plata sin que la guiaras? ¿Con qué emoción habló?"></textarea>
+      </div>
+
+      <div class="signal-block">
+        <div class="signal-label">¿Apareció el tema financiero sin que preguntes?</div>
+        <div class="signal-btns" id="ap-signal">
+          <button class="sig-btn sig-si" data-val="si" onclick="App.setSignal('ap-signal', this)">Sí, solo</button>
+          <button class="sig-btn sig-con-ayuda" data-val="con-ayuda" onclick="App.setSignal('ap-signal', this)">Solo al preguntar</button>
+          <button class="sig-btn sig-no" data-val="no" onclick="App.setSignal('ap-signal', this)">No apareció</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">Sí, solo — mayor señal de dolor activo</span>
+          <span class="leg nogo">No apareció — requiere más exploración</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h1')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H1 -->
+  <div id="screen-h1" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('apertura')">← Atrás</button>
+      <span class="top-title">H1 · Sustituto activo</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 36%"></div></div>
+      <div class="step-label">3 de 9 · PA1 + PA4</div>
+
+      <div class="hipotesis-tag pa14">PA1 · PA4</div>
+      <h2 class="h-title">¿Cómo lleva los números hoy?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"¿Cómo llevas hoy los números de tu negocio? Cuéntame exactamente qué haces."</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Cuándo fue la última vez que miraste eso? ¿Qué hiciste con esa información?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">3</span>
+          <p>"¿Alguna vez lo intentaste diferente y lo dejaste? ¿Por qué lo dejaste?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h1-notas" class="field-textarea" placeholder="¿Cuaderno, Excel, contador, nada? ¿Hay incomodidad con lo que usa hoy?"></textarea>
+      </div>
+
+      <div class="alert-note">⚠ Si dice "no llevo nada" pero se le nota tensión → hay oro. Si no le molesta → no hay dolor.</div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h1-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h1-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h1-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h1-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — sustituto con fricción clara</span>
+          <span class="leg nogo">NO GO — "no llevo nada" sin molestia</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h2')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H2 -->
+  <div id="screen-h2" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h1')">← Atrás</button>
+      <span class="top-title">H2 · Espacio mental</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 48%"></div></div>
+      <div class="step-label">4 de 9 · PA1</div>
+
+      <div class="hipotesis-tag pa1">PA1</div>
+      <h2 class="h-title">¿El dolor financiero ocupa espacio mental activo?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"¿En qué momento de la semana piensas en plata? ¿Qué te genera eso?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Cuál fue la última decisión difícil que tomaste en el negocio? ¿Qué información tenías cuando la tomaste?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h2-notas" class="field-textarea" placeholder="¿Apareció el tema financiero solo o solo cuando preguntaste? Anotar con qué emoción habla."></textarea>
+      </div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h2-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h2-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h2-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h2-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — apareció solo, con emoción</span>
+          <span class="leg nogo">NO GO — solo al preguntar directamente</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h3')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H3 -->
+  <div id="screen-h3" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h2')">← Atrás</button>
+      <span class="top-title">H3 · Episodio de pérdida</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 56%"></div></div>
+      <div class="step-label">5 de 9 · PA1 + PA2</div>
+
+      <div class="hipotesis-tag pa12">PA1 · PA2</div>
+      <h2 class="h-title">¿Hubo un momento de susto o pérdida?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"¿Alguna vez terminaste un mes vendiendo bien y te diste cuenta de que no te quedó nada? ¿Qué hiciste?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Cuándo fue la última vez que el negocio te dio un susto de plata? ¿Cómo lo manejaste?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">3</span>
+          <p>"¿Buscaste ayuda en ese momento? ¿Qué encontraste? ¿Te sirvió?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h3-notas" class="field-textarea" placeholder="Anotar el episodio específico. ¿Buscó solución? ¿Quedó satisfecha con lo que encontró?"></textarea>
+      </div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h3-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h3-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h3-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h3-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — episodio concreto + búsqueda insatisfecha</span>
+          <span class="leg nogo">NO GO — no hay episodio o quedó conforme</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h4')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H4 -->
+  <div id="screen-h4" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h3')">← Atrás</button>
+      <span class="top-title">H4 · Momento de compra</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 64%"></div></div>
+      <div class="step-label">6 de 9 · PA3</div>
+
+      <div class="hipotesis-tag pa3">PA3</div>
+      <h2 class="h-title">¿Cuándo tomaría acción?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"Cuando algo del negocio te preocupa, ¿cuándo te sientas a resolverlo? ¿En el momento o después?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Cuándo fue la última vez que contrataste algo para el negocio? ¿Qué te llevó a hacerlo en ese momento?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">3</span>
+          <p>"Si hoy existiera algo que resuelve eso, ¿lo contratarías ahora o lo pensarías? ¿Qué necesitarías para decidir?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h4-notas" class="field-textarea" placeholder="¿Hay un momento claro donde toma decisiones de este tipo? Anotar exactamente qué dice que necesitaría."></textarea>
+      </div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h4-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h4-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h4-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h4-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — momento claro y repetible</span>
+          <span class="leg nogo">NO GO — "lo pensaría" sin criterio</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h5')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H5 -->
+  <div id="screen-h5" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h4')">← Atrás</button>
+      <span class="top-title">H5 · Disposición a pagar</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 74%"></div></div>
+      <div class="step-label">7 de 9 · PA2</div>
+
+      <div class="hipotesis-tag pa2">PA2</div>
+      <h2 class="h-title">¿Ha pagado antes por claridad financiera?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"¿Tienes contador hoy? ¿Cuánto pagas? ¿Qué te da?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Has probado alguna app o servicio para llevar las finanzas del negocio? ¿La pagaste? ¿La dejaste de usar? ¿Por qué?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">3</span>
+          <p>"¿Cuánto estarías dispuesta a pagar mensualmente por saber con certeza si tu negocio gana o pierde?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h5-notas" class="field-textarea" placeholder="Anotar qué paga hoy y cuánto. ¿Tiene referencia de precio?"></textarea>
+      </div>
+
+      <div class="alert-note">⚠ Pregunta el precio al final, nunca al principio.</div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h5-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h5-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h5-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h5-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — ya paga algo y no resuelve el problema</span>
+          <span class="leg nogo">NO GO — nunca ha pagado, sin referencia</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('h6')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H6 -->
+  <div id="screen-h6" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h5')">← Atrás</button>
+      <span class="top-title">H6 · Fuente de consejo</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 84%"></div></div>
+      <div class="step-label">8 de 9 · PA1 + PA4</div>
+
+      <div class="hipotesis-tag pa14">PA1 · PA4</div>
+      <h2 class="h-title">¿Su consejo financiero es una persona?</h2>
+
+      <div class="preguntas-list">
+        <div class="p-item">
+          <span class="p-num">1</span>
+          <p>"Cuando tienes que tomar una decisión financiera importante, ¿con quién hablas?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">2</span>
+          <p>"¿Qué te dice esa persona? ¿Te sirve lo que te dice?"</p>
+        </div>
+        <div class="p-item">
+          <span class="p-num">3</span>
+          <p>"¿Hay algo que esa persona no puede darte sobre tu negocio? ¿Qué falta?"</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <textarea id="h6-notas" class="field-textarea" placeholder="¿Quién es la fuente? ¿Contador, pareja, intuición? ¿Reconoce brechas?"></textarea>
+      </div>
+
+      <div class="signal-block">
+        <div class="signal-label">Señal</div>
+        <div class="signal-btns" id="h6-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('h6-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('h6-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('h6-signal', this)">NO GO</button>
+        </div>
+        <div class="signal-legend">
+          <span class="leg go">GO — fuente actual deja brechas claras</span>
+          <span class="leg nogo">NO GO — confía plenamente, no percibe brecha</span>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="btn-primary full" onclick="App.goTo('cierre')">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CIERRE Y SÍNTESIS -->
+  <div id="screen-cierre" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="App.goTo('h6')">← Atrás</button>
+      <span class="top-title">Cierre + Síntesis</span>
+    </div>
+    <div class="content">
+      <div class="progress-bar"><div class="progress-fill" style="width: 94%"></div></div>
+      <div class="step-label">9 de 9 · Síntesis final</div>
+
+      <div class="pregunta-card cierre">
+        <div class="pregunta-pill">Pregunta de cierre</div>
+        <p class="pregunta-texto">"¿Hay algo que yo debería haber preguntado y no pregunté?"</p>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notas del cierre</label>
+        <textarea id="cierre-notas" class="field-textarea" placeholder="Lo que diga aquí a veces es el insight más valioso de toda la conversación."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Frase textual más importante (copiar literal)</label>
+        <textarea id="cierre-frase" class="field-textarea" placeholder="Estas palabras exactas son tu propuesta de valor."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">¿Pidió saber más o referir a alguien?</label>
+        <textarea id="cierre-referido" class="field-textarea short" placeholder="Si pidió saber más sin invitarla → señal de demanda fuerte."></textarea>
+      </div>
+
+      <div class="section-sep">Las 4 preguntas angulares — síntesis</div>
+
+      <div class="pa-block">
+        <div class="pa-header"><span class="pa-tag pa1">PA1</span><span class="pa-titulo">¿El dolor existe sin que lo expliques?</span></div>
+        <textarea id="pa1-resumen" class="field-textarea short" placeholder="¿Apareció sin guiar? ¿Con qué emoción?"></textarea>
+        <div class="signal-btns inline" id="pa1-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('pa1-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('pa1-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('pa1-signal', this)">NO GO</button>
+        </div>
+      </div>
+
+      <div class="pa-block">
+        <div class="pa-header"><span class="pa-tag pa2">PA2</span><span class="pa-titulo">¿Pagaría aunque no lo use de entrada?</span></div>
+        <textarea id="pa2-resumen" class="field-textarea short" placeholder="¿Tiene historial de pago? ¿Mencionó precio?"></textarea>
+        <div class="signal-btns inline" id="pa2-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('pa2-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('pa2-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('pa2-signal', this)">NO GO</button>
+        </div>
+      </div>
+
+      <div class="pa-block">
+        <div class="pa-header"><span class="pa-tag pa3">PA3</span><span class="pa-titulo">¿Dolor y momento de compra coinciden?</span></div>
+        <textarea id="pa3-resumen" class="field-textarea short" placeholder="¿Cuándo toma decisiones de este tipo?"></textarea>
+        <div class="signal-btns inline" id="pa3-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('pa3-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('pa3-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('pa3-signal', this)">NO GO</button>
+        </div>
+      </div>
+
+      <div class="pa-block">
+        <div class="pa-header"><span class="pa-tag pa4">PA4</span><span class="pa-titulo">¿Quién es el enemigo real?</span></div>
+        <textarea id="pa4-resumen" class="field-textarea short" placeholder="¿Cuál es el sustituto? ¿Qué tan arraigado?"></textarea>
+        <div class="signal-btns inline" id="pa4-signal">
+          <button class="sig-btn go" data-val="go" onclick="App.setSignal('pa4-signal', this)">GO</button>
+          <button class="sig-btn parcial" data-val="parcial" onclick="App.setSignal('pa4-signal', this)">Parcial</button>
+          <button class="sig-btn nogo" data-val="nogo" onclick="App.setSignal('pa4-signal', this)">NO GO</button>
+        </div>
+      </div>
+
+      <div class="section-sep">Veredicto global</div>
+
+      <div class="signal-btns" id="veredicto-signal">
+        <button class="sig-btn go big" data-val="go" onclick="App.setSignal('veredicto-signal', this)">✓ Señal clara</button>
+        <button class="sig-btn parcial big" data-val="parcial" onclick="App.setSignal('veredicto-signal', this)">~ Señal débil</button>
+        <button class="sig-btn nogo big" data-val="nogo" onclick="App.setSignal('veredicto-signal', this)">✗ Sin señal</button>
+      </div>
+
+      <div class="bottom-nav stacked">
+        <button class="btn-primary full" onclick="App.guardarYExportar()">Guardar y exportar PDF</button>
+        <button class="btn-ghost full" onclick="App.guardarSolo()">Solo guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMACIÓN GUARDADO -->
+  <div id="modal-guardado" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon">✓</div>
+      <p class="modal-title">Entrevista guardada</p>
+      <p class="modal-desc" id="modal-desc-text"></p>
+      <button class="btn-primary full" onclick="App.closeModal()">Volver al inicio</button>
+    </div>
+  </div>
+
+  <!-- PDF LOADING OVERLAY -->
+  <div id="pdf-loading" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon pdf-spin">⏳</div>
+      <p class="modal-title">Generando PDF…</p>
+      <p class="modal-desc">Esto puede tardar unos segundos.</p>
+    </div>
+  </div>
+
+  <!-- Librerías para PDF real (sin diálogo de impresión) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
